@@ -28,29 +28,70 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-    const usersCollection = client.db('quotaInjury').collection('datas');
+    const dataCollection = client.db('quotaInjury').collection('datas');
+    // const usersCollection = client.db('quotaInjury').collection('users');
 
-    app.get("/users",async(req,res)=>{
-      const cursor = usersCollection.find();
+    app.get("/datas",async(req,res)=>{
+      const cursor = dataCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     })
 
-    app.get("/users/:id",async(req,res)=>{
+    app.get("/datas/:id",async(req,res)=>{
       const id = req.params.id;
       const query = {_id : new ObjectId(id)};
-      const result = await usersCollection.findOne(query);
+      const result = await dataCollection.findOne(query);
       res.send(result);
     })
 
 
     // to get a newUsers 
-    // app.post("/users",async(req,res)=>{
+    // app.post("/datas",async(req,res)=>{
     //   const newUsers = req.body;
     //   console.log(newUsers);
+    //   const result = await dataCollection.insertOne(newUsers);
+    //   res.send(result);
+    // })
+
+    //          /////// // USERS API // ////////
+
+    // app.get('/users', async (req, res) => {
+    //   const cursor = usersCollection.find();
+    //   const result = await cursor.toArray();
+    //   res.send(result);
+    // })
+
+    // app.patch('/users',async(req,res)=>{
+    //   const email = req.body.email;
+    //   const filter = {email};
+    //   const updatedDoc = {
+    //     $set :{
+    //         lastSignInTime : req.body?.lastSignInTime
+    //     }
+    //   }
+    //   const result = await usersCollection.updateOne(filter,updatedDoc);
+    //   res.send(result);
+    // })
+
+    // app.post("/users", async (req, res) => {
+    //   const newUsers = req.body;
     //   const result = await usersCollection.insertOne(newUsers);
     //   res.send(result);
     // })
+
+
+
+    // app.delete("/users/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const query = { _id: new ObjectId(id) };
+    //   const result = await usersCollection.deleteOne(query);
+    //   res.send(result);
+    // })
+
+
+
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
