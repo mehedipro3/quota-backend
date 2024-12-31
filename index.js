@@ -23,7 +23,8 @@ async function run() {
   try {
     await client.connect();
     const dataCollection = client.db('quotaInjury').collection('datas');
-
+    const contactCollection = client.db('quotaInjury').collection('messages');
+    
     // GET all users
     app.get("/datas", async (req, res) => {
       const cursor = dataCollection.find();
@@ -75,7 +76,8 @@ async function run() {
           transaction_id: updatedUser.transaction_id,
           required_support: updatedUser.required_support,
           incident_spot: updatedUser.incident_spot,
-          img: updatedUser.img
+          img: updatedUser.img,
+          validation : updatedUser.validation
         }
       };
       const result = await dataCollection.updateOne(filter, updateDoc);
@@ -98,6 +100,37 @@ async function run() {
         return;
       }
       res.send({ message: "User deleted successfully" });
+    });
+
+
+    // API to handle form submission
+    app.post("/contact", async (req, res) => {
+      const { name, email, message } = req.body;
+
+      if (!name || !email || !message) {
+        return res.status(400).send({ error: "All fields are required." });
+      }
+
+      const newMessage = { name, email, message, date: new Date() };
+
+      try {
+        const result = await contactCollection.insertOne(newMessage);
+        res.status(201).send({ success: true, message: "Message sent successfully!", result });
+      } catch (error) {
+        console.error("Error inserting message:", error);
+        res.status(500).send({ error: "Failed to send the message." });
+      }
+    });
+
+    // API to fetch all messages (optional, for admin panel)
+    app.get("/contact/messages", async (req, res) => {
+      try {
+        const messages = await contactCollection.find().toArray();
+        res.status(200).send(messages);
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+        res.status(500).send({ error: "Failed to fetch messages." });
+      }
     });
 
     // Send a ping to confirm a successful connection
